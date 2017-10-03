@@ -1,10 +1,12 @@
 import * as chokidar from 'chokidar';
 import * as debug from 'debug';
+import { DaemonClient } from './daemon-client';
 
 let d = debug("sync-apparatus-fsclient::fs-watcher");
 
 export class FSWatcher {
 	private watcher: chokidar.FSWatcher;
+	private client: DaemonClient;
 
 	constructor(
 		private path: string
@@ -39,6 +41,11 @@ export class FSWatcher {
 				console.error(path);
 			});
 			
+		return this;
+	}
+	
+	public useClient(client: DaemonClient): FSWatcher {
+		this.client = client;
 		return this;
 	}
 }
