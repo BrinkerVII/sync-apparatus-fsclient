@@ -1,6 +1,7 @@
 import * as chokidar from 'chokidar';
 import * as debug from 'debug';
 import { DaemonClient } from './daemon-client';
+import { PushFileAction } from './client-action/push-file-action';
 
 let d = debug("sync-apparatus-fsclient::fs-watcher");
 
@@ -24,6 +25,9 @@ export class FSWatcher {
 			})
 			.on("add", (path, stats) => {
 				d(`Path addded ${path}`);
+
+				new PushFileAction(this.client)
+					.execute(path);
 			})
 			.on("change", (path, stats) => {
 				d(`Path changed ${path}`);
@@ -40,10 +44,10 @@ export class FSWatcher {
 			.on("error", path => {
 				console.error(path);
 			});
-			
+
 		return this;
 	}
-	
+
 	public useClient(client: DaemonClient): FSWatcher {
 		this.client = client;
 		return this;
