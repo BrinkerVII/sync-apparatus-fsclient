@@ -27,7 +27,11 @@ export class FSWatcher {
 				d(`Path addded ${path}`);
 
 				new PushFileAction(this.client)
-					.execute(path);
+					.execute(path)
+					.then(() => {
+						d("Successfully pushed file")
+					})
+					.catch(console.error);
 			})
 			.on("change", (path, stats) => {
 				d(`Path changed ${path}`);
