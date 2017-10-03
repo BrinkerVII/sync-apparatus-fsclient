@@ -83,6 +83,53 @@ export class DaemonClient {
 		});
 	}
 
+	public get(endpoint: string): Promise<any> {
+		return new Promise((resolve, reject) => {
+			let options: requestPromise.Options = {
+				method: "GET",
+				uri: `${this.baseURL}${endpoint}`,
+				json: true
+			};
+
+			requestPromise(options)
+				.then(resolve)
+				.catch(reject);
+		});
+	}
+
+	public post(endpoint: string, body: any): Promise<any> {
+		return new Promise((resolve, reject) => {
+			let options: requestPromise.Options = {
+				method: "POST",
+				uri: `${this.baseURL}${endpoint}`,
+				body: body,
+				json: true
+			};
+
+			requestPromise(options)
+				.then(resolve)
+				.catch(reject);
+		});
+	}
+
+	public delete(endpoint: string, body?: any): Promise<any> {
+		return new Promise((resolve, reject) => {
+			let options: requestPromise.Options = {
+				method: "DELETE",
+				uri: `${this.baseURL}${endpoint}`,
+				json: true
+			};
+
+			if (body) {
+				options.body = body;
+			}
+
+			requestPromise(options)
+				.then(resolve)
+				.catch(reject);
+		});
+	}
+
 	public isConnected(): boolean {
 		return !!this.clientToken;
 	}
