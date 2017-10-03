@@ -18,6 +18,18 @@ export class FSWatcher {
 		this.watcher = chokidar.watch(this.path, options);
 	}
 
+	private doPushFile(path: string): Promise<void> {
+		return new Promise<void>((resolve, reject) => {
+			new PushFileAction(this.client)
+				.execute(path)
+				.then(() => {
+					d("Successfully pushed file");
+					resolve();
+				})
+				.catch(reject);
+		});
+	}
+
 	public bind(): FSWatcher {
 		this.watcher
 			.on("ready", () => {
@@ -25,16 +37,15 @@ export class FSWatcher {
 			})
 			.on("add", (path, stats) => {
 				d(`Path addded ${path}`);
-
-				new PushFileAction(this.client)
-					.execute(path)
-					.then(() => {
-						d("Successfully pushed file")
-					})
+				this.doPushFile(path)
+					.then(() => { })
 					.catch(console.error);
 			})
 			.on("change", (path, stats) => {
 				d(`Path changed ${path}`);
+				this.doPushFile(path)
+					.then(() => { })
+					.catch(console.error);
 			})
 			.on("unlink", path => {
 				d(`Path removed ${path}`);

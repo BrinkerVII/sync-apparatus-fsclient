@@ -46,8 +46,6 @@ export class PushFileAction extends ClientAction {
 									}
 								}];
 
-								console.log(body);
-
 								this.client.post("event", body)
 									.then(response => resolve())
 									.catch(reject);
