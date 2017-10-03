@@ -17,7 +17,7 @@ export class DaemonClient {
 			if (this.isConnected()) {
 				return reject(new Error("Cannot connect because the client is already connected"));
 			}
-			
+
 			let options: requestPromise.Options = {
 				method: "POST",
 				uri: `${this.baseURL}announce`,
@@ -46,6 +46,40 @@ export class DaemonClient {
 					}
 				})
 				.catch(reject);
+		});
+	}
+
+	public disconnect(force: boolean = false): Promise<void> {
+		return new Promise((resolve, reject) => {
+			if (!this.isConnected()) {
+				return reject(new Error("Cannot disconnect the client because it is not connected"));
+			}
+
+			let options: requestPromise.Options = {
+				method: "DELETE",
+				uri: `${this.baseURL}client`,
+				body: {
+					clientToken: this.clientToken
+				},
+				json: true
+			};
+
+			let deleteToken = () => {
+				this.clientToken = null;
+			};
+
+			requestPromise(options)
+				.then(() => {
+					deleteToken();
+					resolve();
+				})
+				.catch(err => {
+					if (force) {
+						deleteToken();
+					}
+
+					reject(err);
+				});
 		});
 	}
 
