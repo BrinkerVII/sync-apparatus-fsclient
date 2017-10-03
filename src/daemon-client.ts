@@ -83,8 +83,12 @@ export class DaemonClient {
 		});
 	}
 
-	public get(endpoint: string): Promise<any> {
+	public get(endpoint: string): Promise<any> {		
 		return new Promise((resolve, reject) => {
+			if (!this.isConnected()) {
+				return reject(new Error("Cannot GET, because the client is not connected"));
+			}
+			
 			let options: requestPromise.Options = {
 				method: "GET",
 				uri: `${this.baseURL}${endpoint}`,
@@ -99,6 +103,10 @@ export class DaemonClient {
 
 	public post(endpoint: string, body: any): Promise<any> {
 		return new Promise((resolve, reject) => {
+			if (!this.isConnected()) {
+				return reject(new Error("Cannot POST, because the client is not connected"));
+			}
+			
 			let options: requestPromise.Options = {
 				method: "POST",
 				uri: `${this.baseURL}${endpoint}`,
@@ -114,6 +122,10 @@ export class DaemonClient {
 
 	public delete(endpoint: string, body?: any): Promise<any> {
 		return new Promise((resolve, reject) => {
+			if (!this.isConnected()) {
+				return reject(new Error("Cannot DELETE, because the client is not connected"));
+			}
+			
 			let options: requestPromise.Options = {
 				method: "DELETE",
 				uri: `${this.baseURL}${endpoint}`,
