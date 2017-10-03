@@ -1,0 +1,19 @@
+{
+  "name": "sync-apparatus-fsclient",
+  "version": "0.0.1",
+  "description": "Sync apparatus FSClient",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BrinkerVII/sync-apparatus-fsclient.git"
+  },
+  "author": "BrinkerVII",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/BrinkerVII/sync-apparatus-fsclient/issues"
+  },
+  "homepage": "https://github.com/BrinkerVII/sync-apparatus-fsclient#readme"
+}
