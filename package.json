@@ -4,7 +4,17 @@
   "description": "Sync apparatus FSClient",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build-all": "gulp build-all",
+    "run-debug": "npm run build-all && better-npm-run run-debug"
+  },
+  "betterScripts": {
+      "run-debug": {
+          "command": "node ./dist/index.js",
+          "env": {
+              "DEBUG": "*"
+          }
+      }
   },
   "repository": {
     "type": "git",
@@ -15,5 +25,15 @@
   "bugs": {
     "url": "https://github.com/BrinkerVII/sync-apparatus-fsclient/issues"
   },
-  "homepage": "https://github.com/BrinkerVII/sync-apparatus-fsclient#readme"
+  "homepage": "https://github.com/BrinkerVII/sync-apparatus-fsclient#readme",
+  "dependencies": {
+    "chokidar": "^1.7.0"
+  },
+  "devDependencies": {
+    "@types/chokidar": "^1.7.3",
+    "gulp": "^3.9.1",
+    "gulp-clean": "^0.3.2",
+    "gulp-typescript": "^3.2.2",
+    "typescript": "^2.5.3"
+  }
 }
