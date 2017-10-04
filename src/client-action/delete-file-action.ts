@@ -1,6 +1,7 @@
 import { ClientAction } from "./client-action";
 import { ProjectExistsAction } from "./project-exists-action";
 import { InstanceVariables } from "../instance-variables";
+import { PathUtil } from "../path-util";
 
 export class DeleteFileAction extends ClientAction {
 	public execute(path: string): Promise<void> {
@@ -15,7 +16,7 @@ export class DeleteFileAction extends ClientAction {
 							type: "file-delete",
 							clientToken: this.client.getToken(),
 							data: {
-								path: path,
+								path: PathUtil.transformPath(path),
 								project: InstanceVariables.project
 							}
 						}];

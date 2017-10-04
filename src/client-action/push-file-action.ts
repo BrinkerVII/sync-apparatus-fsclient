@@ -5,6 +5,7 @@ import { ProjectExistsAction } from "./project-exists-action";
 import { InstanceVariables } from "../instance-variables";
 import { CreateProjectAction } from "./create-project-action";
 import * as debug from 'debug';
+import { PathUtil } from "../path-util";
 
 const d = debug("sync-apparatus-fsclient::push-file-action");
 
@@ -39,7 +40,7 @@ export class PushFileAction extends ClientAction {
 									type: "file-push",
 									clientToken: this.client.getToken(),
 									data: {
-										path: path,
+										path: PathUtil.transformPath(path),
 										contents: fileContents.toString(),
 										project: "testproject",
 										encoding: "plain",
