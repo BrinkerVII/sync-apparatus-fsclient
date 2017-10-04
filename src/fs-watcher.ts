@@ -2,6 +2,7 @@ import * as chokidar from 'chokidar';
 import * as debug from 'debug';
 import { DaemonClient } from './daemon-client';
 import { PushFileAction } from './client-action/push-file-action';
+import { DeleteFileAction } from './client-action/delete-file-action';
 
 let d = debug("sync-apparatus-fsclient::fs-watcher");
 
@@ -49,6 +50,10 @@ export class FSWatcher {
 			})
 			.on("unlink", path => {
 				d(`Path removed ${path}`);
+
+				new DeleteFileAction(this.client).execute(path)
+					.then(() => { })
+					.catch(console.error);
 			})
 			.on("addDir", (path, stats) => {
 				d(`Directory added ${path}`);
