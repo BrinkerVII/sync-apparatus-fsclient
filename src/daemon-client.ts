@@ -1,10 +1,12 @@
 import * as requestPromise from 'request-promise';
+import { InstanceVariables } from './instance-variables';
 
 export class DaemonClient {
 	private clientToken: string;
 
 	constructor(
 		private baseURL: string,
+		private basePath: string = InstanceVariables.watch_path,
 		private name: string = "Sync Apparatus FSClient"
 	) {
 		if (!this.baseURL.endsWith("/")) {
