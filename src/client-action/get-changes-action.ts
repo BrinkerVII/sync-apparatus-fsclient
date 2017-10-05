@@ -4,11 +4,13 @@ import { DaemonChange } from "../model/daemon-change";
 import * as debug from 'debug';
 import * as nodePath from 'path';
 import * as fs from 'fs-extra-promise';
+import { DaemonChangeContent } from "../model/daemon-change-content";
+import { DownloadChangeFileAction } from "./download-change-file-action";
 
 const d = debug("sync-apparatus-fsclient::get-changes-action");
 
 export class GetChangesAction extends ClientAction {
-	private processChange(change: DaemonChange): Promise<void> {
+	private processChange(change: DaemonChangeContent): Promise<void> {
 		return new Promise<void>((resolve, reject) => {
 			let realPath = nodePath.join(InstanceVariables.watch_path, change.path);
 
@@ -38,11 +40,20 @@ export class GetChangesAction extends ClientAction {
 				.then((response: DaemonChange[]) => {
 					for (let change of response) {
 						if (DaemonChange.isSane(change)) {
-							this.processChange(change)
+							let dcfa = new DownloadChangeFileAction(this.client);
+							dcfa.execute(change.uuid)
 								.then(() => {
-									d(`Processed change for path ${change.path}`);
+									if (dcfa.hasResult()) {
+										this.processChange(dcfa.getResult())
+											.then(() => {
+												d(`Processed change with uuid '${change.uuid}'`);
+											})
+											.catch(reject)
+									} else {
+										reject(new Error("Did not get change content from the post office"));
+									}
 								})
-								.catch(reject)
+								.catch(reject);
 						} else {
 							console.error("Got some insane data from the daemon");
 						}

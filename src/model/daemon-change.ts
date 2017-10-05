@@ -1,14 +1,12 @@
 export class DaemonChange {
-	path: string;
-	file: string;
-	type: string;
+	uuid: string;
+	length: number;
 	
 	public static isSane(change: DaemonChange): boolean {
 		let sane = true;
 		
-		sane = sane && typeof change.path == "string";
-		sane = sane && typeof change.file == "string";
-		sane = sane && typeof change.type == "string";
+		sane = sane && typeof change.uuid == "string";
+		sane = sane && typeof change.length == "number";
 		
 		return sane;
 	}
