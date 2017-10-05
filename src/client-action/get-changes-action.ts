@@ -37,11 +37,15 @@ export class GetChangesAction extends ClientAction {
 			this.client.get(endpoint)
 				.then((response: DaemonChange[]) => {
 					for (let change of response) {
-						this.processChange(change)
-							.then(() => {
-								d(`Processed change for path ${change.path}`);
-							})
-							.catch(reject)
+						if (DaemonChange.isSane(change)) {
+							this.processChange(change)
+								.then(() => {
+									d(`Processed change for path ${change.path}`);
+								})
+								.catch(reject)
+						} else {
+							console.error("Got some insane data from the daemon");
+						}
 					}
 				})
 				.catch(reject);
