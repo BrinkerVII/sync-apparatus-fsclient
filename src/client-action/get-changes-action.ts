@@ -1,28 +1,36 @@
 import { ClientAction } from "./client-action";
 import { InstanceVariables } from "../instance-variables";
-import { DaemonChange } from "../model/daemon-change";
 import * as debug from 'debug';
 import * as nodePath from 'path';
 import * as fs from 'fs-extra-promise';
 import { DaemonChangeContent } from "../model/daemon-change-content";
+import { DaemonChange } from "../model/daemon-change";
+import { DeleteChangeAction } from "./delete-change-action";
 import { DownloadChangeFileAction } from "./download-change-file-action";
 
-const d = debug("sync-apparatus-fsclient::get-changes-action");
+const d = debug("sync-apparatus-fsclient::get-contents-action");
 
 export class GetChangesAction extends ClientAction {
-	private processChange(change: DaemonChangeContent): Promise<void> {
+	private processChange(change: DaemonChange, content: DaemonChangeContent): Promise<void> {
 		return new Promise<void>((resolve, reject) => {
-			let realPath = nodePath.join(InstanceVariables.watch_path, change.path);
-			d(`Processing changes for path ${realPath} with type ${change.type}`);
+			let realPath = nodePath.join(InstanceVariables.watch_path, content.path);
+			d(`Processing contents for path ${realPath} with type ${content.type}`);
 
-			if (change.type === "add" || change.type === "update") {
+			if (content.type === "add" || content.type === "update") {
 				let dir = nodePath.dirname(realPath);
 				d(`dirname is ${dir}, checking if it exists...`);
 
+				let deleteChange = () => {
+					let dca = new DeleteChangeAction(this.client)
+						.execute(change.uuid)
+						.then(() => resolve())
+						.catch(reject);
+				}
+
 				let doWrite = () => {
-					fs.writeFileAsync(realPath, change.file)
+					fs.writeFileAsync(realPath, content.file)
 						.then(() => {
-							resolve();
+							deleteChange();
 						})
 						.catch(reject);
 				}
@@ -48,14 +56,14 @@ export class GetChangesAction extends ClientAction {
 					.catch(err => {
 						doMkDirs();
 					});
-			} else if (change.type == "delete") {
+			} else if (content.type == "delete") {
 				fs.removeAsync(realPath)
 					.then(() => resolve())
 					.catch(reject);
-			} else if (change.type == "none") {
-				reject(new Error("Got NOP as change type"));
+			} else if (content.type == "none") {
+				reject(new Error("Got NOP as content type"));
 			} else {
-				reject(new Error("Unsupported change type"));
+				reject(new Error("Unsupported content type"));
 			}
 		});
 	}
@@ -72,7 +80,7 @@ export class GetChangesAction extends ClientAction {
 							dcfa.execute(change.uuid)
 								.then(() => {
 									if (dcfa.hasResult()) {
-										this.processChange(dcfa.getResult())
+										this.processChange(change, dcfa.getResult())
 											.then(() => {
 												d(`Processed change with uuid '${change.uuid}'`);
 											})
