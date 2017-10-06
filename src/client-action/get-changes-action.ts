@@ -13,13 +13,41 @@ export class GetChangesAction extends ClientAction {
 	private processChange(change: DaemonChangeContent): Promise<void> {
 		return new Promise<void>((resolve, reject) => {
 			let realPath = nodePath.join(InstanceVariables.watch_path, change.path);
+			d(`Processing changes for path ${realPath} with type ${change.type}`);
 
 			if (change.type === "add" || change.type === "update") {
-				fs.writeFileAsync(realPath, change.file)
-					.then(() => {
-						resolve();
+				let dir = nodePath.dirname(realPath);
+				d(`dirname is ${dir}, checking if it exists...`);
+
+				let doWrite = () => {
+					fs.writeFileAsync(realPath, change.file)
+						.then(() => {
+							resolve();
+						})
+						.catch(reject);
+				}
+
+				let doMkDirs = () => {
+					d("Directory does not exist, attempting to make directory");
+					fs.mkdirsAsync(dir)
+						.then(() => doWrite())
+						.catch(reject);
+				}
+
+				fs.isDirectoryAsync(dir)
+					.then(stat => {
+						d("Resolved isDirectoryAsync");
+
+						if (stat) {
+							d("Directory exists, attempting write");
+							doWrite();
+						} else {
+							doMkDirs();
+						}
 					})
-					.catch(reject);
+					.catch(err => {
+						doMkDirs();
+					});
 			} else if (change.type == "delete") {
 				fs.removeAsync(realPath)
 					.then(() => resolve())
