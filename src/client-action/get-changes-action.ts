@@ -7,6 +7,7 @@ import { DaemonChangeContent } from "../model/daemon-change-content";
 import { DaemonChange } from "../model/daemon-change";
 import { DeleteChangeAction } from "./delete-change-action";
 import { DownloadChangeFileAction } from "./download-change-file-action";
+import { GlobalEvents } from "../global-events";
 
 const d = debug("sync-apparatus-fsclient::get-contents-action");
 
@@ -15,7 +16,13 @@ export class GetChangesAction extends ClientAction {
 		return new Promise<void>((resolve, reject) => {
 			let realPath = nodePath.join(InstanceVariables.watch_path, content.path);
 			d(`Processing contents for path ${realPath} with type ${content.type}`);
+			
+			let onError = (...args) => {
+				GlobalEvents.getInstance().gong.emit(false);
+				reject(...args);
+			};
 
+			GlobalEvents.getInstance().gong.emit(true);
 			if (content.type === "add" || content.type === "update") {
 				let dir = nodePath.dirname(realPath);
 				d(`dirname is ${dir}, checking if it exists...`);
@@ -24,7 +31,7 @@ export class GetChangesAction extends ClientAction {
 					let dca = new DeleteChangeAction(this.client)
 						.execute(change.uuid)
 						.then(() => resolve())
-						.catch(reject);
+						.catch(onError);
 				}
 
 				let doWrite = () => {
@@ -32,14 +39,14 @@ export class GetChangesAction extends ClientAction {
 						.then(() => {
 							deleteChange();
 						})
-						.catch(reject);
+						.catch(onError);
 				}
 
 				let doMkDirs = () => {
 					d("Directory does not exist, attempting to make directory");
 					fs.mkdirsAsync(dir)
 						.then(() => doWrite())
-						.catch(reject);
+						.catch(onError);
 				}
 
 				fs.isDirectoryAsync(dir)
@@ -59,11 +66,11 @@ export class GetChangesAction extends ClientAction {
 			} else if (content.type == "delete") {
 				fs.removeAsync(realPath)
 					.then(() => resolve())
-					.catch(reject);
+					.catch(onError);
 			} else if (content.type == "none") {
-				reject(new Error("Got NOP as content type"));
+				onError(new Error("Got NOP as content type"));
 			} else {
-				reject(new Error("Unsupported content type"));
+				onError(new Error("Unsupported content type"));
 			}
 		});
 	}

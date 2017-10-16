@@ -3,16 +3,23 @@ import * as debug from 'debug';
 import { DaemonClient } from './daemon-client';
 import { PushFileAction } from './client-action/push-file-action';
 import { DeleteFileAction } from './client-action/delete-file-action';
+import { GlobalEvents } from './global-events';
 
 let d = debug("sync-apparatus-fsclient::fs-watcher");
 
 export class FSWatcher {
 	private watcher: chokidar.FSWatcher;
 	private client: DaemonClient;
+	private deafened: boolean = false;
 
 	constructor(
 		private path: string
 	) {
+		GlobalEvents.getInstance().gong.subscribe(deafened => {
+			this.deafened = deafened;
+			d(`Changed FSWatcher deafened state to ${this.deafened}`);
+		});
+		
 		let options: chokidar.WatchOptions = {
 			persistent: true
 		}
@@ -21,6 +28,10 @@ export class FSWatcher {
 
 	private doPushFile(path: string): Promise<void> {
 		return new Promise<void>((resolve, reject) => {
+			if (this.deafened) {
+				return d("FSWatchers are deafened");
+			}
+
 			new PushFileAction(this.client)
 				.execute(path)
 				.then(() => {
@@ -50,6 +61,9 @@ export class FSWatcher {
 			})
 			.on("unlink", path => {
 				d(`Path removed ${path}`);
+				if (this.deafened) {
+					return d("FSWatchers are deafened");
+				}
 
 				new DeleteFileAction(this.client).execute(path)
 					.then(() => { })
