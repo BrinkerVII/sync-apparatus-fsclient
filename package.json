@@ -20,7 +20,7 @@
     "type": "git",
     "url": "git+https://github.com/BrinkerVII/sync-apparatus-fsclient.git"
   },
-  "author": "BrinkerVII",
+  "author": "BrinkerVII <brinkervii@gmail.com>",
   "license": "GPL-3.0",
   "bugs": {
     "url": "https://github.com/BrinkerVII/sync-apparatus-fsclient/issues"
