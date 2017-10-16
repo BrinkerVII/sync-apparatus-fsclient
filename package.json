@@ -1,12 +1,13 @@
 {
   "name": "sync-apparatus-fsclient",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Sync apparatus FSClient",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build-all": "gulp build-all",
-    "run-debug": "npm run build-all && better-npm-run run-debug"
+    "run-debug": "npm run build-all && better-npm-run run-debug",
+    "do-publish": "npm run build-all && npm publish"
   },
   "betterScripts": {
     "run-debug": {
