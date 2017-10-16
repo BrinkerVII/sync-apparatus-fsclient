@@ -26,6 +26,27 @@ export class PushFileAction extends ClientAction {
 			}
 			this.parameter++;
 
+			let doPush = () => {
+				fs.readFileAsync(path, {})
+					.then((fileContents) => {
+						let body = [{
+							type: "file-push",
+							clientToken: this.client.getToken(),
+							data: {
+								path: PathUtil.transformPath(path),
+								contents: fileContents.toString(),
+								project: "testproject",
+								encoding: "plain",
+							}
+						}];
+
+						this.client.post("event", body)
+							.then(response => resolve())
+							.catch(reject);
+					})
+					.catch(reject);
+			};
+
 			let pea: ProjectExistsAction = new ProjectExistsAction(this.client)
 				.setParameter(InstanceVariables.project);
 
@@ -34,24 +55,7 @@ export class PushFileAction extends ClientAction {
 				.then(() => {
 					if (pea.getResult()) {
 						d("Project exists, pushing file...");
-						fs.readFileAsync(path, {})
-							.then((fileContents) => {
-								let body = [{
-									type: "file-push",
-									clientToken: this.client.getToken(),
-									data: {
-										path: PathUtil.transformPath(path),
-										contents: fileContents.toString(),
-										project: "testproject",
-										encoding: "plain",
-									}
-								}];
-
-								this.client.post("event", body)
-									.then(response => resolve())
-									.catch(reject);
-							})
-							.catch(reject);
+						doPush();
 					} else {
 						d("Project does not exist, creating project...");
 
@@ -61,7 +65,7 @@ export class PushFileAction extends ClientAction {
 						cpa.execute()
 							.then(() => {
 								this.execute(path)
-									.then(resolve)
+									.then(doPush)
 									.catch(reject);
 							})
 							.catch(reject);
