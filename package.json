@@ -1,6 +1,6 @@
 {
   "name": "sync-apparatus-fsclient",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Sync apparatus FSClient",
   "main": "index.js",
   "scripts": {
