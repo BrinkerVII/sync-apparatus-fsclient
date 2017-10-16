@@ -10,7 +10,7 @@
   },
   "betterScripts": {
     "run-debug": {
-      "command": "node ./dist/index.js",
+      "command": "node ./dist/runners/test-runner.js",
       "env": {
         "DEBUG": "*"
       }
